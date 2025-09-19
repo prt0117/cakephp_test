@@ -2,7 +2,7 @@
 
 Для запуска нужно установить LAMP:
 - Apache httpd 2.4 c mod_php и mod_rewrite;
-- PHP 7.0 (+ базовые расширения; я ставил cli,common,curl,zip,gd,mysql,xml,mbstring,json,intl; для Кейка 2 это избыточно, конечно, должно хватить mysql. mbstring, intl)
+- PHP 7.0 (+ базовые расширения; я ставил cli,common,curl,zip,gd,mysql,xml,mbstring,json,intl; для Кейка 2 это избыточно, конечно, должно хватить mysql, mbstring, intl)
 - MySQL 8.0
 
 Далее нужно экспортировать data.sql в БД.
