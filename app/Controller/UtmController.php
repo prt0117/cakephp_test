@@ -18,11 +18,11 @@ class UtmController extends AppController {
 		$grouped = [];
 
 		foreach ($utms as $utm) {
-			$source   = $utm['UtmData']['source'];
-			$medium   = $utm['UtmData']['medium'];
+			$source = $utm['UtmData']['source'];
+			$medium = $utm['UtmData']['medium'];
 			$campaign = $utm['UtmData']['campaign'];
-			$content  = isset($utm['UtmData']['content'])  ? $utm['UtmData']['content']  : 'NULL';
-			$term     = isset($utm['UtmData']['term'])     ? $utm['UtmData']['term']     : 'NULL';
+			$content = isset($utm['UtmData']['content']) ? $utm['UtmData']['content'] : 'NULL';
+			$term = isset($utm['UtmData']['term']) ? $utm['UtmData']['term'] : 'NULL';
 
 			if ($content === 'NULL')
 				$grouped[$source][$medium][$campaign][] = 'NULL';
