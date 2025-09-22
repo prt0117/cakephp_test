@@ -163,8 +163,25 @@ class UtmController extends AppController {
 				'offset' => $offset
 			]);
 
-			$sql = "SELECT COUNT(*) AS total FROM `utm_data` WHERE `source` = :source AND `medium` = :medium AND `campaign` = :campaign AND (`content` = :content OR `content` IS NULL)";
-			$result = $this->UtmData->query($sql, ['source' => $source, 'medium' => $medium, 'campaign' => $campaign, 'content' => $content]);
+			if ($content === NULL) {
+				$sql = "SELECT COUNT(*) AS total
+						FROM `utm_data`
+						WHERE `source` = :source
+						AND `medium` = :medium
+						AND `campaign` = :campaign
+						AND `content` IS NULL";
+				$params = ['source' => $source, 'medium' => $medium, 'campaign' => $campaign];
+			} else {
+				$sql = "SELECT COUNT(*) AS total
+						FROM `utm_data`
+						WHERE `source` = :source
+						AND `medium` = :medium
+						AND `campaign` = :campaign
+						AND `content` = :content";
+				$params = ['source' => $source, 'medium' => $medium, 'campaign' => $campaign, 'content' => $content];
+			}
+
+			$result = $this->UtmData->query($sql, $params);
 
 			$totalTerms = $result[0][0]['total'];
 			$this->log("totalTerms", 'debug');
