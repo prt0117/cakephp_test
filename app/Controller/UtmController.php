@@ -11,28 +11,6 @@ class UtmController extends AppController {
 		'limit' => 2
     );
 
-	public function statistics_list() {
-		$this->Paginator->settings = $this->paginate;
-		$utms = $this->Paginator->paginate('UtmData');
-
-		$grouped = [];
-
-		foreach ($utms as $utm) {
-			$source = $utm['UtmData']['source'];
-			$medium = $utm['UtmData']['medium'];
-			$campaign = $utm['UtmData']['campaign'];
-			$content = isset($utm['UtmData']['content']) ? $utm['UtmData']['content'] : 'NULL';
-			$term = isset($utm['UtmData']['term']) ? $utm['UtmData']['term'] : 'NULL';
-
-			if ($content === 'NULL')
-				$grouped[$source][$medium][$campaign][] = 'NULL';
-			else
-				$grouped[$source][$medium][$campaign][$content][] = $term;
-		}
-
-		$this->set('utms', $grouped);
-	}
-
 	// Загрузка начальных source для отображения на первой странице
     public function statistics_index() {
 		$this->Paginator->settings = [
@@ -55,7 +33,7 @@ class UtmController extends AppController {
         $this->request->onlyAllow('ajax');
 
         // Количество элементов на странице
-        $limit = 5;
+        $limit = 1;
         $offset = ($page - 1) * $limit;
 
         // Начинаем транзакцию
@@ -72,10 +50,14 @@ class UtmController extends AppController {
                 'offset' => $offset
             ]);
 
-            // Запрос на подсчёт общего числа medium для выбранного source
-            $totalMedium = $this->UtmData->find('count', [
-                'conditions' => ['source' => $source]
-            ]);
+			// Выполняем запрос с DISTINCT через SQL
+			$sql = "SELECT COUNT(DISTINCT `medium`) AS total FROM `utm_data` WHERE `source` = :source";
+			$result = $this->UtmData->query($sql, ['source' => $source]);
+
+			// Получаем количество уникальных medium
+			$totalMedium = $result[0][0]['total'];
+
+			$this->log($totalMedium, 'debug');
 
             // Коммит транзакции
             $this->UtmData->commit();
@@ -102,7 +84,7 @@ class UtmController extends AppController {
         $this->request->onlyAllow('ajax');
 
         // Количество элементов на странице
-        $limit = 5;
+        $limit = 1;
         $offset = ($page - 1) * $limit;
 
         $this->UtmData->begin();
@@ -119,9 +101,15 @@ class UtmController extends AppController {
             ]);
 
             // Подсчитываем общее количество campaigns для medium
-            $totalCampaigns = $this->UtmData->find('count', [
-                'conditions' => ['source' => $source, 'medium' => $medium]
-            ]);
+            // $totalCampaigns = $this->UtmData->find('count', [
+            //     'conditions' => ['source' => $source, 'medium' => $medium]
+            // ]);
+
+			$sql = "SELECT COUNT(DISTINCT `campaign`) AS total FROM `utm_data` WHERE `source` = :source AND `medium` = :medium";
+			$result = $this->UtmData->query($sql, ['source' => $source, 'medium' => $medium]);
+
+			// Получаем количество уникальных campaign
+			$totalCampaigns = $result[0][0]['total'];
 
             $this->UtmData->commit();
 
@@ -144,7 +132,7 @@ class UtmController extends AppController {
         $this->request->onlyAllow('ajax');
 
         // Количество элементов на странице
-        $limit = 5;
+        $limit = 1;
         $offset = ($page - 1) * $limit;
 
         $this->UtmData->begin();
@@ -161,9 +149,15 @@ class UtmController extends AppController {
             ]);
 
             // Подсчитываем общее количество contents для campaign
-            $totalContents = $this->UtmData->find('count', [
-                'conditions' => ['source' => $source, 'medium' => $medium, 'campaign' => $campaign]
-            ]);
+            // $totalContents = $this->UtmData->find('count', [
+            //     'conditions' => ['source' => $source, 'medium' => $medium, 'campaign' => $campaign]
+            // ]);
+
+			$sql = "SELECT COUNT(DISTINCT `content`) AS total FROM `utm_data` WHERE `source` = :source AND `medium` = :medium AND `campaign` = :campaign";
+			$result = $this->UtmData->query($sql, ['source' => $source, 'medium' => $medium, 'campaign' => $campaign]);
+
+			// Получаем количество уникальных content
+			$totalContents = $result[0][0]['total'];
 
             $this->UtmData->commit();
 
@@ -186,8 +180,10 @@ class UtmController extends AppController {
         $this->request->onlyAllow('ajax');
 
         // Количество элементов на странице
-        $limit = 5;
+        $limit = 1;
         $offset = ($page - 1) * $limit;
+		$this->log("offset", 'debug');
+		$this->log($offset, 'debug');
 
         $this->UtmData->begin();
 
@@ -196,16 +192,25 @@ class UtmController extends AppController {
             $terms = $this->UtmData->find('list', [
                 'fields' => ['term', 'term'],
                 'conditions' => ['source' => $source, 'medium' => $medium, 'campaign' => $campaign, 'content' => $content],
-                'group' => ['term'],
-                'order' => ['term' => 'ASC'],
+                #'group' => ['term'],
+                #'order' => ['term' => 'ASC'],
                 'limit' => $limit,
                 'offset' => $offset
             ]);
 
             // Подсчитываем общее количество terms для content
-            $totalTerms = $this->UtmData->find('count', [
-                'conditions' => ['source' => $source, 'medium' => $medium, 'campaign' => $campaign, 'content' => $content]
-            ]);
+            // $totalTerms = $this->UtmData->find('count', [
+            //     'conditions' => ['source' => $source, 'medium' => $medium, 'campaign' => $campaign, 'content' => $content]
+            // ]);
+
+			$sql = "SELECT COUNT(*) AS total FROM `utm_data` WHERE `source` = :source AND `medium` = :medium AND `campaign` = :campaign AND `content` = :content";
+			$result = $this->UtmData->query($sql, ['source' => $source, 'medium' => $medium, 'campaign' => $campaign, 'content' => $content]);
+
+			// Получаем количество уникальных terms
+			$totalTerms = $result[0][0]['total'];
+			$this->log($totalTerms, 'debug');
+			$this->log("terms", 'debug');
+			$this->log($terms, 'debug');
 
             $this->UtmData->commit();
 
