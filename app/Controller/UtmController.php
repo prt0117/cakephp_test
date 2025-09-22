@@ -12,7 +12,7 @@ class UtmController extends AppController {
     );
 
 	// Загрузка начальных source для отображения на первой странице
-    public function statistics_index() {
+    public function statistics_list() {
 		$this->Paginator->settings = [
             'fields' => ['source'],
             'group' => ['source'],
