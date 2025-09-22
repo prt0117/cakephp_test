@@ -15,9 +15,10 @@
 
 <div class="pagination">
 	<?php
-		echo $this->Paginator->prev('« Prev', null, null, ['class' => 'prev']);
+		echo $this->Paginator->prev('« Prev  ', null, null, ['class' => 'prev']);
+		echo $this->Paginator->next('  Next »', null, null, ['class' => 'next']);
+		echo "<br>";
 		echo $this->Paginator->numbers();
-		echo $this->Paginator->next('Next »', null, null, ['class' => 'next']);
 	?>
 </div>
 
@@ -55,11 +56,8 @@ $(document).on('click', '.toggle', function() {
 		targetId = '#content-' + source + '-' + medium + '-' + campaign + '-' + content;
 	}
 
-	console.log(url);
-
 	$.getJSON(url, function(response) {
 		var html = '';
-		console.log(response);
 		response.data.forEach(function(item) {
 			if (level === 'source') {
 				html += '<li><span class="toggle" data-level="medium" data-source="' + source + '" data-medium="' + item + '">' + item + '</span><ul class="children" id="medium-' + source + '-' + item + '" style="display:none;"></ul></li>';
@@ -107,7 +105,6 @@ $(document).on('click', '.load-more', function() {
 	}
 
 	$.getJSON(url, function(response) {
-		console.log(response);
 		var html = '';
 		response.data.forEach(function(item) {
 			if (level === 'source') {

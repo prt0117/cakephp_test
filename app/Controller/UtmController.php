@@ -23,7 +23,6 @@ class UtmController extends AppController {
 
 	public function statistics_loadMediums($source = null, $page = 1) {
 		$this->autoRender = false;
-		$this->request->onlyAllow('ajax');
 
 		$limit = $this->innerLevelLimit;
 		$offset = ($page - 1) * $limit;
@@ -40,12 +39,11 @@ class UtmController extends AppController {
 				'offset' => $offset
 			]);
 
+			// вот тут надо уточнить, экранируются ли автоматически данные при передаче подобным способом (:content). Если не экранируются, переписать или задействовать Sanitize.
 			$sql = "SELECT COUNT(DISTINCT `medium`) AS total FROM `utm_data` WHERE `source` = :source";
 			$result = $this->UtmData->query($sql, ['source' => $source]);
 
 			$totalMedium = $result[0][0]['total'];
-
-			$this->log($totalMedium, 'debug');
 
 			$this->UtmData->commit();
 
@@ -64,7 +62,6 @@ class UtmController extends AppController {
 
 	public function statistics_loadCampaigns($source = null, $medium = null, $page = 1) {
 		$this->autoRender = false;
-		$this->request->onlyAllow('ajax');
 
 		$limit = $this->innerLevelLimit;
 		$offset = ($page - 1) * $limit;
@@ -81,6 +78,7 @@ class UtmController extends AppController {
 				'offset' => $offset
 			]);
 
+			// вот тут надо уточнить, экранируются ли автоматически данные при передаче подобным способом (:content). Если не экранируются, переписать или задействовать Sanitize.
 			$sql = "SELECT COUNT(DISTINCT `campaign`) AS total FROM `utm_data` WHERE `source` = :source AND `medium` = :medium";
 			$result = $this->UtmData->query($sql, ['source' => $source, 'medium' => $medium]);
 
@@ -103,7 +101,6 @@ class UtmController extends AppController {
 
 	public function statistics_loadContents($source = null, $medium = null, $campaign = null, $page = 1) {
 		$this->autoRender = false;
-		$this->request->onlyAllow('ajax');
 
 		$limit = $this->innerLevelLimit;
 		$offset = ($page - 1) * $limit;
@@ -120,6 +117,7 @@ class UtmController extends AppController {
 				'offset' => $offset
 			]);
 
+			// вот тут надо уточнить, экранируются ли автоматически данные при передаче подобным способом (:content). Если не экранируются, переписать или задействовать Sanitize.
 			$sql = "SELECT COUNT(DISTINCT `content`) AS total FROM `utm_data` WHERE `source` = :source AND `medium` = :medium AND `campaign` = :campaign";
 			$result = $this->UtmData->query($sql, ['source' => $source, 'medium' => $medium, 'campaign' => $campaign]);
 
@@ -142,15 +140,11 @@ class UtmController extends AppController {
 
 	public function statistics_loadTerms($source = null, $medium = null, $campaign = null, $content = null, $page = 1) {
 		$this->autoRender = false;
-		$this->request->onlyAllow('ajax');
 
 		$limit = $this->innerLevelLimit;
 		$offset = ($page - 1) * $limit;
 
 		$this->UtmData->begin();
-
-		$this->log("content is null?", 'debug');
-		$this->log($content, 'debug');
 
 		if ($content == 'null')
 			$content = NULL;
@@ -163,6 +157,7 @@ class UtmController extends AppController {
 				'offset' => $offset
 			]);
 
+			// вот тут надо уточнить, экранируются ли автоматически данные при передаче подобным способом (:content). Если не экранируются, переписать или задействовать Sanitize.
 			if ($content === NULL) {
 				$sql = "SELECT COUNT(*) AS total
 						FROM `utm_data`
@@ -184,16 +179,10 @@ class UtmController extends AppController {
 			$result = $this->UtmData->query($sql, $params);
 
 			$totalTerms = $result[0][0]['total'];
-			$this->log("totalTerms", 'debug');
-			$this->log($totalTerms, 'debug');
-			$this->log("terms", 'debug');
-			$this->log($terms, 'debug');
 
 			$this->UtmData->commit();
 
 			$totalPages = ceil($totalTerms / $limit);
-
-			$this->log($terms, 'debug');
 
 			return json_encode([
 				'data' => array_values($terms),
