@@ -9,9 +9,9 @@ campaigns = ['summer_sale', 'black_friday', 'holiday_discount', 'winter_clearanc
              'christmas_campaign', 'easter_special', 'flash_sale', 'thanksgiving_offer']
 
 contents = ['banner_ad', 'video_ad', 'text_link', 'carousel_ad', 'popup', 'email_template', 'landing_page', 'social_post',
-            'product_page', 'newsletter', None]  # Добавляем None, чтобы был content = NULL
+            'product_page', None]  # Добавляем None, чтобы был content = NULL
 
-terms = ['shoes', 'laptop', 'travel', 'fitness', 'home_decor', 'electronics', 'clothing', 'beauty', 'accessories', 'toys']
+terms = ['shoes', 'laptop', 'travel', 'fitness', 'home_decor']
 
 # Открываем файл для записи SQL
 with open('utm_data_inserts.sql', 'w') as file:
@@ -21,7 +21,7 @@ with open('utm_data_inserts.sql', 'w') as file:
             for campaign in campaigns:
                 for content in contents:
                     # С каждым content генерируем термины
-                    for i in range(5):
+                    for i in range(10):
                         term = terms[i] if i < 5 else None  # Последние 5 terms будут NULL
 
                         # Формируем SQL-INSERT
